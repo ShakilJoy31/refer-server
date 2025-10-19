@@ -14,14 +14,21 @@ const authenticatio_service_1 = require("./authenticatio.service");
 const signup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { name, email, password } = req.body;
-        // Call the service to create a user
-        const user = yield (0, authenticatio_service_1.createUserToDB)({ name, email, password });
-        res.status(200).json({
+        const { user, token } = yield (0, authenticatio_service_1.createUserToDB)({ name, email, password });
+        res.status(201).json({
             status: 'success',
-            data: user,
+            data: {
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email
+                },
+                token
+            },
         });
     }
     catch (error) {
+        console.log(error);
         if (error instanceof Error && error.message === 'Email already exists') {
             res.status(400).json({
                 status: 'error',
@@ -40,28 +47,31 @@ exports.signup = signup;
 const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, password } = req.body;
-        // Call the login service
-        const user = yield (0, authenticatio_service_1.loginUser)(email, password);
+        const { user, token } = yield (0, authenticatio_service_1.loginUser)(email, password);
         res.status(200).json({
             status: 'success',
-            data: user
+            data: {
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email
+                },
+                token
+            }
         });
     }
     catch (error) {
-        // Type guard to check if error is an instance of Error
         if (error instanceof Error) {
-            res.status(500).json({
+            const statusCode = error.message === 'User not found' || error.message === 'Invalid credentials' ? 401 : 500;
+            res.status(statusCode).json({
                 status: 'error',
-                message: 'Failed to Login',
-                error: error.message,
+                message: error.message,
             });
         }
         else {
-            // Handle cases where the error is not an instance of Error
             res.status(500).json({
                 status: 'error',
-                message: 'Failed to Login',
-                error: 'An unknown error occurred',
+                message: 'An unknown error occurred',
             });
         }
     }

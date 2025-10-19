@@ -23,9 +23,6 @@ function databaseConnection() {
             app_1.default.listen(config_1.default.port, () => {
                 console.log(`Refer server is listening on port ${config_1.default.port}`);
             });
-            app_1.default.get("/", (req, res) => {
-                res.send("Refer server is running");
-            });
         }
         catch (error) {
             console.log(error);

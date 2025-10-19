@@ -5,12 +5,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const cors_1 = __importDefault(require("cors"));
 const express_1 = __importDefault(require("express"));
-const bookself_routes_1 = __importDefault(require("./app/modules/bookself.routes"));
+const refer_server_routes_1 = __importDefault(require("./app/modules/refer-server-routes"));
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({
     extended: true
 }));
-app.use("/api/v1/CyberCraft-Bangladesh-assignment", bookself_routes_1.default);
+// Root route
+app.get("/", (req, res) => {
+    res.send("Refer server is running");
+});
+app.use("/api/v1/filesure-assignment", refer_server_routes_1.default);
 exports.default = app;
