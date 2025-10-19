@@ -13,8 +13,8 @@ exports.login = exports.signup = void 0;
 const authenticatio_service_1 = require("./authenticatio.service");
 const signup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { name, email, password } = req.body;
-        const { user, token } = yield (0, authenticatio_service_1.createUserToDB)({ name, email, password });
+        const { name, email, password, referredBy } = req.body;
+        const { user, token } = yield (0, authenticatio_service_1.createUserToDB)({ name, email, password, referredBy });
         res.status(201).json({
             status: 'success',
             data: {

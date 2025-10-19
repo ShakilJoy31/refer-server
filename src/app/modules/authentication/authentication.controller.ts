@@ -1,13 +1,14 @@
 // authentication.controller.ts
 import { NextFunction, Request, Response } from 'express';
 import { createUserToDB, loginUser } from './authenticatio.service';
+import { IUserForm } from './user.model';
 
 
 export const signup = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, referredBy } = req.body;
         
-        const { user, token } = await createUserToDB({ name, email, password } as any);
+        const { user, token } = await createUserToDB({ name, email, password, referredBy } as IUserForm);
 
         res.status(201).json({
             status: 'success',
