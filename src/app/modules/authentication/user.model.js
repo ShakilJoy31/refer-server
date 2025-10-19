@@ -55,6 +55,12 @@ const userSchema = new mongoose_1.Schema({
         type: String,
         required: true,
         minlength: 6
+    },
+    referredBy: {
+        type: String,
+        required: false,
+        trim: true,
+        lowercase: true
     }
 }, {
     timestamps: true

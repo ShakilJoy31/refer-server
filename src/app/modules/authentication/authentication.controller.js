@@ -21,7 +21,8 @@ const signup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
                 user: {
                     id: user._id,
                     name: user.name,
-                    email: user.email
+                    email: user.email,
+                    referredBy: user.referredBy
                 },
                 token
             },
@@ -54,7 +55,8 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
                 user: {
                     id: user._id,
                     name: user.name,
-                    email: user.email
+                    email: user.email,
+                    referredBy: user.referredBy
                 },
                 token
             }

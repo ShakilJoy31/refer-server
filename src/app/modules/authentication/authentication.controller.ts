@@ -15,7 +15,8 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
                 user: {
                     id: user._id,
                     name: user.name,
-                    email: user.email
+                    email: user.email,
+                    referredBy: user.referredBy
                 },
                 token
             },
@@ -48,7 +49,8 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
                 user: {
                     id: user._id,
                     name: user.name,
-                    email: user.email
+                    email: user.email,
+                    referredBy: user.referredBy
                 },
                 token
             }
