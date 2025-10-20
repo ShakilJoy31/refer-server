@@ -41,19 +41,19 @@ const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const userSchema = new mongoose_1.Schema({
     name: {
         type: String,
-        required: true,
+        required: false,
         trim: true
     },
     email: {
         type: String,
-        required: true,
+        required: false,
         unique: true,
         trim: true,
         lowercase: true
     },
     password: {
         type: String,
-        required: true,
+        required: false,
         minlength: 6
     },
     referredBy: {

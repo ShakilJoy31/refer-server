@@ -13,22 +13,33 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.purchaseServiceFunction = void 0;
-const jwt_1 = require("../../../utility/jwt");
+// refer.service.ts
 const user_model_1 = __importDefault(require("../authentication/user.model"));
 const purchaseServiceFunction = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = new user_model_1.default(payload);
-        yield user.save();
-        // Generate JWT token
-        const token = (0, jwt_1.generateToken)(user);
-        return { user, token };
+        const { referredBy, purchasedReferId } = payload;
+        // Find the referrer user by ID
+        const referrer = yield user_model_1.default.findById(referredBy);
+        if (!referrer) {
+            throw new Error('Referrer not found');
+        }
+        // Check if purchasedReferId already exists in myRefers array
+        if (referrer.myRefers && referrer.myRefers.includes(purchasedReferId)) {
+            throw new Error('Purchase refer ID already exists');
+        }
+        // Add purchasedReferId to myRefers array
+        if (!referrer.myRefers) {
+            referrer.myRefers = [];
+        }
+        referrer.myRefers.push(purchasedReferId);
+        // Save the updated referrer
+        yield referrer.save();
+        return {
+            referrer,
+            purchasedReferId
+        };
     }
     catch (error) {
-        if (error instanceof Error) {
-            if ('code' in error && error.code === 11000) {
-                throw new Error('Email already exists');
-            }
-        }
         throw error;
     }
 });

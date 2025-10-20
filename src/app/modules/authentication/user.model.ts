@@ -3,8 +3,8 @@ import mongoose, { Document, Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 export interface IUserForm extends Document {
-  name: string;
-  email: string;
+  name?: string;
+  email?: string;
   password: string;
   referredBy?: string;
   myRefers?: string[];  // <-- Add this line
@@ -14,19 +14,19 @@ export interface IUserForm extends Document {
 const userSchema = new Schema<IUserForm>({
   name: {
     type: String,
-    required: true,
+    required: false,
     trim: true
   },
   email: {
     type: String,
-    required: true, 
+    required: false, 
     unique: true,
     trim: true,
     lowercase: true
   },
   password: {
     type: String,
-    required: true,
+    required: false,
     minlength: 6
   },
   referredBy: {

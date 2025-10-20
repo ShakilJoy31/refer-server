@@ -1,34 +1,58 @@
 // authentication.controller.ts
 import { NextFunction, Request, Response } from 'express';
-import { IUserForm } from '../authentication/user.model';
 import { purchaseServiceFunction } from './refer.service';
 
+export interface IPurchaseForm {
+  referredBy: string;
+  purchasedReferId: string;
+}
 
 export const purchase = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { name, email, password, referredBy } = req.body;
+        const { referredBy, purchasedReferId } = req.body;
         
-        const { user, token } = await purchaseServiceFunction({ name, email, password, referredBy } as IUserForm);
+        // Validate required fields
+        if (!referredBy || !purchasedReferId) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'referredBy and purchasedReferId are required'
+            });
+        }
 
-        res.status(201).json({
+        const result = await purchaseServiceFunction({ referredBy, purchasedReferId });
+
+        res.status(200).json({
             status: 'success',
+            message: 'Purchase recorded successfully',
             data: {
-                user: {
-                    id: user._id,
-                    name: user.name,
-                    email: user.email,
-                    referredBy: user.referredBy
+                referrer: {
+                    id: result.referrer._id,
+                    name: result.referrer.name,
+                    email: result.referrer.email,
+                    myRefers: result.referrer.myRefers
                 },
-                token
+                purchasedReferId: purchasedReferId
             },
         });
     } catch (error) {
         console.log(error)
-        if (error instanceof Error && error.message === 'Email already exists') {
-            res.status(400).json({
-                status: 'error',
-                message: 'Email already exists',
-            });
+        if (error instanceof Error) {
+            if (error.message === 'Referrer not found') {
+                res.status(404).json({
+                    status: 'error',
+                    message: 'Referrer not found',
+                });
+            } else if (error.message === 'Purchase refer ID already exists') {
+                res.status(400).json({
+                    status: 'error',
+                    message: 'This purchase has already been recorded',
+                });
+            } else {
+                res.status(500).json({
+                    status: 'error',
+                    message: 'Something went wrong',
+                });
+            }
         } else {
             res.status(500).json({
                 status: 'error',
