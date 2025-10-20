@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.login = exports.signup = void 0;
+exports.getUserByIdController = exports.login = exports.signup = void 0;
 const authenticatio_service_1 = require("./authenticatio.service");
 const signup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -79,3 +79,42 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.login = login;
+const getUserByIdController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.query; // Get ID from query params
+        if (!id) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'User ID is required'
+            });
+        }
+        const user = yield (0, authenticatio_service_1.getUserById)(id);
+        res.status(200).json({
+            status: 'success',
+            data: {
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    referredBy: user.referredBy,
+                    myRefers: user.myRefers
+                }
+            }
+        });
+    }
+    catch (error) {
+        if (error instanceof Error && error.message === 'User not found') {
+            res.status(404).json({
+                status: 'error',
+                message: 'User not found',
+            });
+        }
+        else {
+            res.status(500).json({
+                status: 'error',
+                message: 'Something went wrong',
+            });
+        }
+    }
+});
+exports.getUserByIdController = getUserByIdController;

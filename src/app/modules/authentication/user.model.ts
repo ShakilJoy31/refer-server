@@ -6,7 +6,8 @@ export interface IUserForm extends Document {
   name: string;
   email: string;
   password: string;
-  referredBy: string
+  referredBy?: string;
+  myRefers?: string[];  // <-- Add this line
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -33,6 +34,11 @@ const userSchema = new Schema<IUserForm>({
     required: false,
     trim: true,
     lowercase: true
+  },
+  myRefers: {
+    type: [String],
+    required: false,
+    default: []
   }
 }, {
   timestamps: true

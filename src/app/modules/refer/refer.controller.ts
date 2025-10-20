@@ -1,0 +1,39 @@
+// authentication.controller.ts
+import { NextFunction, Request, Response } from 'express';
+import { IUserForm } from '../authentication/user.model';
+import { purchaseServiceFunction } from './refer.service';
+
+
+export const purchase = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { name, email, password, referredBy } = req.body;
+        
+        const { user, token } = await purchaseServiceFunction({ name, email, password, referredBy } as IUserForm);
+
+        res.status(201).json({
+            status: 'success',
+            data: {
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    referredBy: user.referredBy
+                },
+                token
+            },
+        });
+    } catch (error) {
+        console.log(error)
+        if (error instanceof Error && error.message === 'Email already exists') {
+            res.status(400).json({
+                status: 'error',
+                message: 'Email already exists',
+            });
+        } else {
+            res.status(500).json({
+                status: 'error',
+                message: 'Something went wrong',
+            });
+        }
+    }
+};

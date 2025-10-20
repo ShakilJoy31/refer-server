@@ -12,11 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserById = exports.loginUser = exports.createUserToDB = void 0;
-// authentication.service.ts
+exports.purchaseServiceFunction = void 0;
 const jwt_1 = require("../../../utility/jwt");
-const user_model_1 = __importDefault(require("./user.model"));
-const createUserToDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+const user_model_1 = __importDefault(require("../authentication/user.model"));
+const purchaseServiceFunction = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = new user_model_1.default(payload);
         yield user.save();
@@ -33,37 +32,4 @@ const createUserToDB = (payload) => __awaiter(void 0, void 0, void 0, function* 
         throw error;
     }
 });
-exports.createUserToDB = createUserToDB;
-const loginUser = (email, password) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const user = yield user_model_1.default.findOne({ email });
-        if (!user) {
-            throw new Error('User not found');
-        }
-        // Use the comparePassword method from the model
-        const isPasswordValid = yield user.comparePassword(password);
-        if (!isPasswordValid) {
-            throw new Error('Invalid credentials');
-        }
-        // Generate JWT token
-        const token = (0, jwt_1.generateToken)(user);
-        return { user, token };
-    }
-    catch (error) {
-        throw error;
-    }
-});
-exports.loginUser = loginUser;
-const getUserById = (userId) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const user = yield user_model_1.default.findById(userId).select('-password'); // Exclude password
-        if (!user) {
-            throw new Error('User not found');
-        }
-        return user;
-    }
-    catch (error) {
-        throw error;
-    }
-});
-exports.getUserById = getUserById;
+exports.purchaseServiceFunction = purchaseServiceFunction;

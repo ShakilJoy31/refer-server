@@ -43,3 +43,17 @@ export const loginUser = async (email: string, password: string): Promise<{ user
     throw error;
   }
 };
+
+
+
+export const getUserById = async (userId: string): Promise<IUserForm> => {
+  try {
+    const user = await User.findById(userId).select('-password'); // Exclude password
+    if (!user) {
+      throw new Error('User not found');
+    }
+    return user;
+  } catch (error) {
+    throw error;
+  }
+};

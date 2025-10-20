@@ -61,6 +61,11 @@ const userSchema = new mongoose_1.Schema({
         required: false,
         trim: true,
         lowercase: true
+    },
+    myRefers: {
+        type: [String],
+        required: false,
+        default: []
     }
 }, {
     timestamps: true

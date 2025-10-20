@@ -1,6 +1,6 @@
 // authentication.controller.ts
 import { NextFunction, Request, Response } from 'express';
-import { createUserToDB, loginUser } from './authenticatio.service';
+import { createUserToDB, getUserById, loginUser } from './authenticatio.service';
 import { IUserForm } from './user.model';
 
 
@@ -67,6 +67,49 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             res.status(500).json({
                 status: 'error',
                 message: 'An unknown error occurred',
+            });
+        }
+    }
+};
+
+
+
+
+export const getUserByIdController = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.query; // Get ID from query params
+        
+        if (!id) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'User ID is required'
+            });
+        }
+
+        const user = await getUserById(id as string);
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    referredBy: user.referredBy,
+                    myRefers: user.myRefers
+                }
+            }
+        });
+    } catch (error) {
+        if (error instanceof Error && error.message === 'User not found') {
+            res.status(404).json({
+                status: 'error',
+                message: 'User not found',
+            });
+        } else {
+            res.status(500).json({
+                status: 'error',
+                message: 'Something went wrong',
             });
         }
     }
