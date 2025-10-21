@@ -8,6 +8,7 @@ const express_1 = __importDefault(require("express"));
 const authentication_controller_1 = require("./authentication/authentication.controller");
 const protected_routes_1 = __importDefault(require("./protected-routes"));
 const refer_controller_1 = require("./refer/refer.controller");
+const dashboard_controller_1 = require("./dashboard/dashboard.controller");
 const router = express_1.default.Router();
 // Public routes
 router.post("/signup", authentication_controller_1.signup);
@@ -15,6 +16,8 @@ router.post("/login", authentication_controller_1.login);
 router.get("/user-by-id", authentication_controller_1.getUserByIdController);
 // Refer
 router.put("/purchase-book", refer_controller_1.purchase);
+// Fetching dashboard data
+router.get("/get-user-refer", dashboard_controller_1.getUserDashboardById);
 // Protected routes (require JWT token)
 router.use(protected_routes_1.default);
 exports.default = router;
