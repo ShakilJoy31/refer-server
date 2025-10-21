@@ -31,7 +31,12 @@ export const purchase = async (req: Request, res: Response, next: NextFunction) 
                     email: result.referrer.email,
                     myRefers: result.referrer.myRefers
                 },
-                purchasedReferId: purchasedReferId
+                purchasedUser: {
+                    id: result.purchasedUser._id,
+                    name: result.purchasedUser.name,
+                    email: result.purchasedUser.email,
+                    isPurchased: result.purchasedUser.isPurchased
+                }
             },
         });
     } catch (error) {
@@ -41,6 +46,11 @@ export const purchase = async (req: Request, res: Response, next: NextFunction) 
                 res.status(404).json({
                     status: 'error',
                     message: 'Referrer not found',
+                });
+            } else if (error.message === 'Purchased user not found') {
+                res.status(404).json({
+                    status: 'error',
+                    message: 'Purchased user not found',
                 });
             } else if (error.message === 'Purchase refer ID already exists') {
                 res.status(400).json({

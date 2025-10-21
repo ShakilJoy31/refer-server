@@ -96,6 +96,7 @@ const getUserByIdController = (req, res, next) => __awaiter(void 0, void 0, void
                     id: user._id,
                     name: user.name,
                     email: user.email,
+                    isPurchased: user.isPurchased,
                     referredBy: user.referredBy,
                     myRefers: user.myRefers
                 }

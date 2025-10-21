@@ -95,6 +95,7 @@ export const getUserByIdController = async (req: Request, res: Response, next: N
                     id: user._id,
                     name: user.name,
                     email: user.email,
+                    isPurchased: user.isPurchased,
                     referredBy: user.referredBy,
                     myRefers: user.myRefers
                 }

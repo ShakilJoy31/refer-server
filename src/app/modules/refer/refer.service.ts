@@ -4,7 +4,7 @@ import { IPurchaseForm } from "./refer.controller";
 
 export const purchaseServiceFunction = async (payload: IPurchaseForm): Promise<{ 
     referrer: IUserForm; 
-    purchasedReferId: string;
+    purchasedUser: IUserForm;
 }> => {
     try {
         const { referredBy, purchasedReferId } = payload;
@@ -14,6 +14,13 @@ export const purchaseServiceFunction = async (payload: IPurchaseForm): Promise<{
         
         if (!referrer) {
             throw new Error('Referrer not found');
+        }
+
+        // Find the purchased user by ID
+        const purchasedUser = await User.findById(purchasedReferId);
+        
+        if (!purchasedUser) {
+            throw new Error('Purchased user not found');
         }
 
         // Check if purchasedReferId already exists in myRefers array
@@ -28,12 +35,18 @@ export const purchaseServiceFunction = async (payload: IPurchaseForm): Promise<{
         
         referrer.myRefers.push(purchasedReferId);
         
-        // Save the updated referrer
-        await referrer.save();
+        // Update isPurchased to true for the purchased user
+        purchasedUser.isPurchased = true;
+
+        // Save both updates
+        await Promise.all([
+            referrer.save(),
+            purchasedUser.save()
+        ]);
 
         return { 
             referrer, 
-            purchasedReferId 
+            purchasedUser 
         };
     } catch (error) {
         throw error;

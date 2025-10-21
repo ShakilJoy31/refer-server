@@ -23,6 +23,11 @@ const purchaseServiceFunction = (payload) => __awaiter(void 0, void 0, void 0, f
         if (!referrer) {
             throw new Error('Referrer not found');
         }
+        // Find the purchased user by ID
+        const purchasedUser = yield user_model_1.default.findById(purchasedReferId);
+        if (!purchasedUser) {
+            throw new Error('Purchased user not found');
+        }
         // Check if purchasedReferId already exists in myRefers array
         if (referrer.myRefers && referrer.myRefers.includes(purchasedReferId)) {
             throw new Error('Purchase refer ID already exists');
@@ -32,11 +37,16 @@ const purchaseServiceFunction = (payload) => __awaiter(void 0, void 0, void 0, f
             referrer.myRefers = [];
         }
         referrer.myRefers.push(purchasedReferId);
-        // Save the updated referrer
-        yield referrer.save();
+        // Update isPurchased to true for the purchased user
+        purchasedUser.isPurchased = true;
+        // Save both updates
+        yield Promise.all([
+            referrer.save(),
+            purchasedUser.save()
+        ]);
         return {
             referrer,
-            purchasedReferId
+            purchasedUser
         };
     }
     catch (error) {
