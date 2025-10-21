@@ -13,7 +13,8 @@ const router = express_1.default.Router();
 // Public routes
 router.post("/signup", authentication_controller_1.signup);
 router.post("/login", authentication_controller_1.login);
-router.get("/user-by-id", authentication_controller_1.getUserByIdController);
+router.get("/get-user-by-id", authentication_controller_1.getUserByIdController);
+router.put("/update-user-by-id/:id", authentication_controller_1.updateUserController);
 // Refer
 router.put("/purchase-book", refer_controller_1.purchase);
 // Fetching dashboard data

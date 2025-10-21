@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserByIdController = exports.login = exports.signup = void 0;
+exports.updateUserController = exports.getUserByIdController = exports.login = exports.signup = void 0;
 const authenticatio_service_1 = require("./authenticatio.service");
 const signup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -118,3 +118,61 @@ const getUserByIdController = (req, res, next) => __awaiter(void 0, void 0, void
     }
 });
 exports.getUserByIdController = getUserByIdController;
+const updateUserController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params; // Get ID from URL params
+        const updateData = req.body; // Get update data from request body
+        if (!id) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'User ID is required'
+            });
+        }
+        const updatedUser = yield (0, authenticatio_service_1.updateUser)(id, updateData);
+        res.status(200).json({
+            status: 'success',
+            data: {
+                user: {
+                    id: updatedUser._id,
+                    name: updatedUser.name,
+                    email: updatedUser.email,
+                    referredBy: updatedUser.referredBy,
+                    myRefers: updatedUser.myRefers
+                }
+            }
+        });
+    }
+    catch (error) {
+        if (error instanceof Error && error.message === 'User not found') {
+            res.status(404).json({
+                status: 'error',
+                message: 'User not found',
+            });
+        }
+        else if (error instanceof Error && error.message === 'Email already exists') {
+            res.status(400).json({
+                status: 'error',
+                message: 'Email already exists',
+            });
+        }
+        else if (error instanceof Error && error.message === 'Current password is required to set new password') {
+            res.status(400).json({
+                status: 'error',
+                message: 'Current password is required to set new password',
+            });
+        }
+        else if (error instanceof Error && error.message === 'Current password is incorrect') {
+            res.status(400).json({
+                status: 'error',
+                message: 'Current password is incorrect',
+            });
+        }
+        else {
+            res.status(500).json({
+                status: 'error',
+                message: 'Something went wrong',
+            });
+        }
+    }
+});
+exports.updateUserController = updateUserController;

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserById = exports.loginUser = exports.createUserToDB = void 0;
+exports.updateUser = exports.getUserById = exports.loginUser = exports.createUserToDB = void 0;
 // authentication.service.ts
 const jwt_1 = require("../../../utility/jwt");
 const user_model_1 = __importDefault(require("./user.model"));
@@ -67,3 +67,55 @@ const getUserById = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getUserById = getUserById;
+const updateUser = (userId, updateData) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield user_model_1.default.findById(userId);
+        if (!user) {
+            throw new Error('User not found');
+        }
+        // Check if email is being updated and if it already exists
+        if (updateData.email && updateData.email !== user.email) {
+            const existingUser = yield user_model_1.default.findOne({
+                email: updateData.email,
+                _id: { $ne: userId }
+            });
+            if (existingUser) {
+                throw new Error('Email already exists');
+            }
+        }
+        // Handle password update with current password verification
+        if (updateData.password) {
+            if (!updateData.currentPassword) {
+                throw new Error('Current password is required to set new password');
+            }
+            // Verify current password
+            const isCurrentPasswordValid = yield user.comparePassword(updateData.currentPassword);
+            if (!isCurrentPasswordValid) {
+                throw new Error('Current password is incorrect');
+            }
+            // Set new password (the pre-save hook in the model will hash it)
+            user.password = updateData.password;
+            // Remove password fields from updateData to avoid conflicts
+            delete updateData.password;
+            delete updateData.currentPassword;
+        }
+        // Update other fields
+        if (updateData.name)
+            user.name = updateData.name;
+        if (updateData.email)
+            user.email = updateData.email;
+        if (updateData.referredBy)
+            user.referredBy = updateData.referredBy;
+        if (updateData.myRefers)
+            user.myRefers = updateData.myRefers;
+        // Save the user (this will trigger the pre-save hook for password hashing)
+        yield user.save();
+        // Return user without password
+        const updatedUser = yield user_model_1.default.findById(userId).select('-password');
+        return updatedUser;
+    }
+    catch (error) {
+        throw error;
+    }
+});
+exports.updateUser = updateUser;

@@ -1,6 +1,6 @@
 // authentication.controller.ts
 import { NextFunction, Request, Response } from 'express';
-import { createUserToDB, getUserById, loginUser } from './authenticatio.service';
+import { createUserToDB, getUserById, loginUser, updateUser } from './authenticatio.service';
 import { IUserForm } from './user.model';
 
 
@@ -105,6 +105,63 @@ export const getUserByIdController = async (req: Request, res: Response, next: N
             res.status(404).json({
                 status: 'error',
                 message: 'User not found',
+            });
+        } else {
+            res.status(500).json({
+                status: 'error',
+                message: 'Something went wrong',
+            });
+        }
+    }
+};
+
+
+export const updateUserController = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.params; // Get ID from URL params
+        const updateData = req.body; // Get update data from request body
+        
+        if (!id) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'User ID is required'
+            });
+        }
+
+        const updatedUser = await updateUser(id, updateData);
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                user: {
+                    id: updatedUser._id,
+                    name: updatedUser.name,
+                    email: updatedUser.email,
+                    referredBy: updatedUser.referredBy,
+                    myRefers: updatedUser.myRefers
+                }
+            }
+        });
+    } catch (error) {
+        if (error instanceof Error && error.message === 'User not found') {
+            res.status(404).json({
+                status: 'error',
+                message: 'User not found',
+            });
+        } else if (error instanceof Error && error.message === 'Email already exists') {
+            res.status(400).json({
+                status: 'error',
+                message: 'Email already exists',
+            });
+        } else if (error instanceof Error && error.message === 'Current password is required to set new password') {
+            res.status(400).json({
+                status: 'error',
+                message: 'Current password is required to set new password',
+            });
+        } else if (error instanceof Error && error.message === 'Current password is incorrect') {
+            res.status(400).json({
+                status: 'error',
+                message: 'Current password is incorrect',
             });
         } else {
             res.status(500).json({
