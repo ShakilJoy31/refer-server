@@ -20,24 +20,34 @@ const getUserDashboardId = (userId) => __awaiter(void 0, void 0, void 0, functio
         if (!user) {
             throw new Error('User not found');
         }
-        // Find all users who have this user's ID in their referredBy field
+        // Find all users who have this user's ID in their referredBy field (total referred users)
         const referredUsers = yield user_model_1.default.find({
             referredBy: userId
         }).select('name email createdAt _id');
-        // Get the count of users who referred by this user
+        // Find users who actually purchased (converted users) - users whose IDs are in myRefers array
+        const convertedUsers = yield user_model_1.default.find({
+            _id: { $in: user.myRefers || [] }
+        }).select('name email createdAt _id');
+        // Get the counts
         const totalReferrals = referredUsers.length;
-        // Calculate total earned (2 credits per referral)
-        const totalEarned = totalReferrals * 2;
+        const totalConverted = convertedUsers.length;
+        // Calculate total earned (2 credits per converted user)
+        const totalEarned = totalConverted * 2;
         return {
             user: {
                 id: user._id,
                 name: user.name,
                 email: user.email,
-                referredBy: user.referredBy
+                referredBy: user.referredBy,
+                myRefers: user.myRefers // Include myRefers if needed
             },
-            referredUsers, // This will be the array of users who were referred by this user
-            totalReferrals,
-            totalEarned
+            referredUsers, // All users who used referral link
+            convertedUsers, // Only users who purchased (from myRefers)
+            referralStats: {
+                totalReferrals,
+                totalConverted,
+                totalEarned
+            }
         };
     }
     catch (error) {

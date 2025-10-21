@@ -18,10 +18,12 @@ export const getUserDashboardById = async (req: Request, res: Response, next: Ne
             status: 'success',
             data: {
                 user: result.user,
-                referredUsers: result.referredUsers, // Array of users referred by this user
+                referredUsers: result.referredUsers, // Array of all users referred by this user
+                convertedUsers: result.convertedUsers, // Array of users who actually purchased
                 referralStats: {
-                    totalReferrals: result.totalReferrals,
-                    totalEarned: result.totalEarned
+                    totalReferrals: result.referralStats.totalReferrals,
+                    totalConverted: result.referralStats.totalConverted,
+                    totalEarned: result.referralStats.totalEarned
                 }
             }
         });

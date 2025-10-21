@@ -7,27 +7,38 @@ export const getUserDashboardId = async (userId: string): Promise<any> => {
       throw new Error('User not found');
     }
 
-    // Find all users who have this user's ID in their referredBy field
+    // Find all users who have this user's ID in their referredBy field (total referred users)
     const referredUsers = await User.find({
       referredBy: userId
     }).select('name email createdAt _id');
 
-    // Get the count of users who referred by this user
+    // Find users who actually purchased (converted users) - users whose IDs are in myRefers array
+    const convertedUsers = await User.find({
+      _id: { $in: user.myRefers || [] }
+    }).select('name email createdAt _id');
+
+    // Get the counts
     const totalReferrals = referredUsers.length;
+    const totalConverted = convertedUsers.length;
     
-    // Calculate total earned (2 credits per referral)
-    const totalEarned = totalReferrals * 2;
+    // Calculate total earned (2 credits per converted user)
+    const totalEarned = totalConverted * 2;
 
     return {
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
-        referredBy: user.referredBy
+        referredBy: user.referredBy,
+        myRefers: user.myRefers // Include myRefers if needed
       },
-      referredUsers, // This will be the array of users who were referred by this user
-      totalReferrals,
-      totalEarned
+      referredUsers, // All users who used referral link
+      convertedUsers, // Only users who purchased (from myRefers)
+      referralStats: {
+        totalReferrals,
+        totalConverted,
+        totalEarned
+      }
     };
   } catch (error) {
     throw error;
