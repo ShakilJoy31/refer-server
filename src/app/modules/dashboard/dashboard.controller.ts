@@ -19,7 +19,7 @@ export const getUserDashboardById = async (req: Request, res: Response, next: Ne
             data: {
                 user: result.user,
                 referredUsers: result.referredUsers, // Array of all users referred by this user
-                convertedUsers: result.convertedUsers, // Array of users who actually purchased
+                convertedUsers: result.convertedUsers, // Array of users who actually purchased 
                 referralStats: {
                     totalReferrals: result.referralStats.totalReferrals,
                     totalConverted: result.referralStats.totalConverted,

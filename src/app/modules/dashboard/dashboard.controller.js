@@ -26,7 +26,7 @@ const getUserDashboardById = (req, res, next) => __awaiter(void 0, void 0, void 
             data: {
                 user: result.user,
                 referredUsers: result.referredUsers, // Array of all users referred by this user
-                convertedUsers: result.convertedUsers, // Array of users who actually purchased
+                convertedUsers: result.convertedUsers, // Array of users who actually purchased 
                 referralStats: {
                     totalReferrals: result.referralStats.totalReferrals,
                     totalConverted: result.referralStats.totalConverted,
