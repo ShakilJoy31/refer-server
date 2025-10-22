@@ -11,15 +11,15 @@ const router = express.Router();
 router.post("/signup", signup);
 router.post("/login", login);
 router.get("/get-user-by-id", authenticate, getUserByIdController);
-router.put("/update-user-by-id/:id", updateUserController); 
+router.put("/update-user-by-id/:id", authenticate, updateUserController); 
 
 
 
 
 // Refer
-router.put("/purchase-book", purchase);
+router.put("/purchase-book", authenticate, purchase);
 
 // Fetching dashboard data
-router.get("/get-user-refer", getUserDashboardById);
+router.get("/get-user-refer", authenticate, getUserDashboardById);
 
 export default router;

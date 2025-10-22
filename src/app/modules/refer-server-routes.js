@@ -14,9 +14,9 @@ const router = express_1.default.Router();
 router.post("/signup", authentication_controller_1.signup);
 router.post("/login", authentication_controller_1.login);
 router.get("/get-user-by-id", auth_1.authenticate, authentication_controller_1.getUserByIdController);
-router.put("/update-user-by-id/:id", authentication_controller_1.updateUserController);
+router.put("/update-user-by-id/:id", auth_1.authenticate, authentication_controller_1.updateUserController);
 // Refer
-router.put("/purchase-book", refer_controller_1.purchase);
+router.put("/purchase-book", auth_1.authenticate, refer_controller_1.purchase);
 // Fetching dashboard data
-router.get("/get-user-refer", dashboard_controller_1.getUserDashboardById);
+router.get("/get-user-refer", auth_1.authenticate, dashboard_controller_1.getUserDashboardById);
 exports.default = router;
