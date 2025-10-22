@@ -14,67 +14,63 @@ const refer_service_1 = require("./refer.service");
 const purchase = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { referredBy, purchasedReferId } = req.body;
-        // Validate required fields
-        if (!referredBy || !purchasedReferId) {
+        // Validate required field
+        if (!purchasedReferId) {
             return res.status(400).json({
                 status: 'error',
-                message: 'referredBy and purchasedReferId are required'
+                message: 'purchasedReferId is required'
             });
         }
         const result = yield (0, refer_service_1.purchaseServiceFunction)({ referredBy, purchasedReferId });
-        res.status(200).json({
+        const response = {
             status: 'success',
             message: 'Purchase recorded successfully',
             data: {
-                referrer: {
-                    id: result.referrer._id,
-                    name: result.referrer.name,
-                    email: result.referrer.email,
-                    myRefers: result.referrer.myRefers
-                },
                 purchasedUser: {
                     id: result.purchasedUser._id,
                     name: result.purchasedUser.name,
                     email: result.purchasedUser.email,
                     isPurchased: result.purchasedUser.isPurchased
                 }
-            },
-        });
+            }
+        };
+        // Only include referrer data if referral exists
+        if (result.referrer) {
+            response.data.referrer = {
+                id: result.referrer._id,
+                name: result.referrer.name,
+                email: result.referrer.email,
+                myRefers: result.referrer.myRefers
+            };
+        }
+        res.status(200).json(response);
     }
     catch (error) {
-        console.log(error);
+        console.error('Purchase error:', error);
         if (error instanceof Error) {
-            if (error.message === 'Referrer not found') {
-                res.status(404).json({
+            const errorMessages = {
+                'Referrer not found': () => res.status(404).json({
                     status: 'error',
                     message: 'Referrer not found',
-                });
-            }
-            else if (error.message === 'Purchased user not found') {
-                res.status(404).json({
+                }),
+                'Purchased user not found': () => res.status(404).json({
                     status: 'error',
                     message: 'Purchased user not found',
-                });
-            }
-            else if (error.message === 'Purchase refer ID already exists') {
-                res.status(400).json({
+                }),
+                'Purchase refer ID already exists': () => res.status(400).json({
                     status: 'error',
                     message: 'This purchase has already been recorded',
-                });
-            }
-            else {
-                res.status(500).json({
-                    status: 'error',
-                    message: 'Something went wrong',
-                });
+                })
+            };
+            const handler = errorMessages[error.message];
+            if (handler) {
+                return handler();
             }
         }
-        else {
-            res.status(500).json({
-                status: 'error',
-                message: 'Something went wrong',
-            });
-        }
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal server error',
+        });
     }
 });
 exports.purchase = purchase;

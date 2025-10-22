@@ -2,53 +2,57 @@
 import User, { IUserForm } from "../authentication/user.model";
 import { IPurchaseForm } from "./refer.controller";
 
-export const purchaseServiceFunction = async (payload: IPurchaseForm): Promise<{ 
-    referrer: IUserForm; 
-    purchasedUser: IUserForm;
-}> => {
-    try {
-        const { referredBy, purchasedReferId } = payload;
+interface PurchaseResult {
+  referrer: IUserForm | null;
+  purchasedUser: IUserForm;
+}
 
-        // Find the referrer user by ID
-        const referrer = await User.findById(referredBy);
-        
-        if (!referrer) {
-            throw new Error('Referrer not found');
-        }
+export const purchaseServiceFunction = async (payload: IPurchaseForm): Promise<PurchaseResult> => {
+  const { referredBy, purchasedReferId } = payload;
 
-        // Find the purchased user by ID
-        const purchasedUser = await User.findById(purchasedReferId);
-        
-        if (!purchasedUser) {
-            throw new Error('Purchased user not found');
-        }
+  // Find the purchased user by ID
+  const purchasedUser = await User.findById(purchasedReferId);
+  
+  if (!purchasedUser) {
+    throw new Error('Purchased user not found');
+  }
 
-        // Check if purchasedReferId already exists in myRefers array
-        if (referrer.myRefers && referrer.myRefers.includes(purchasedReferId)) {
-            throw new Error('Purchase refer ID already exists');
-        }
+  let referrer: IUserForm | null = null;
 
-        // Add purchasedReferId to myRefers array
-        if (!referrer.myRefers) {
-            referrer.myRefers = [];
-        }
-        
-        referrer.myRefers.push(purchasedReferId);
-        
-        // Update isPurchased to true for the purchased user
-        purchasedUser.isPurchased = true;
-
-        // Save both updates
-        await Promise.all([
-            referrer.save(),
-            purchasedUser.save()
-        ]);
-
-        return { 
-            referrer, 
-            purchasedUser 
-        };
-    } catch (error) {
-        throw error;
+  // Process referral only if referredBy is provided
+  if (referredBy) {
+    referrer = await User.findById(referredBy);
+    
+    if (!referrer) {
+      throw new Error('Referrer not found');
     }
+
+    // Check if purchasedReferId already exists in myRefers array
+    if (referrer.myRefers?.includes(purchasedReferId)) {
+      throw new Error('Purchase refer ID already exists');
+    }
+
+    // Add purchasedReferId to myRefers array
+    if (!referrer.myRefers) {
+      referrer.myRefers = [];
+    }
+    
+    referrer.myRefers.push(purchasedReferId);
+  }
+
+  // Update isPurchased to true for the purchased user
+  purchasedUser.isPurchased = true;
+
+  // Save updates - only save referrer if it exists
+  const savePromises: Promise<any>[] = [purchasedUser.save()];
+  if (referrer) {
+    savePromises.push(referrer.save());
+  }
+
+  await Promise.all(savePromises);
+
+  return { 
+    referrer, 
+    purchasedUser 
+  };
 };

@@ -16,20 +16,22 @@ exports.purchaseServiceFunction = void 0;
 // refer.service.ts
 const user_model_1 = __importDefault(require("../authentication/user.model"));
 const purchaseServiceFunction = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { referredBy, purchasedReferId } = payload;
-        // Find the referrer user by ID
-        const referrer = yield user_model_1.default.findById(referredBy);
+    var _a;
+    const { referredBy, purchasedReferId } = payload;
+    // Find the purchased user by ID
+    const purchasedUser = yield user_model_1.default.findById(purchasedReferId);
+    if (!purchasedUser) {
+        throw new Error('Purchased user not found');
+    }
+    let referrer = null;
+    // Process referral only if referredBy is provided
+    if (referredBy) {
+        referrer = yield user_model_1.default.findById(referredBy);
         if (!referrer) {
             throw new Error('Referrer not found');
         }
-        // Find the purchased user by ID
-        const purchasedUser = yield user_model_1.default.findById(purchasedReferId);
-        if (!purchasedUser) {
-            throw new Error('Purchased user not found');
-        }
         // Check if purchasedReferId already exists in myRefers array
-        if (referrer.myRefers && referrer.myRefers.includes(purchasedReferId)) {
+        if ((_a = referrer.myRefers) === null || _a === void 0 ? void 0 : _a.includes(purchasedReferId)) {
             throw new Error('Purchase refer ID already exists');
         }
         // Add purchasedReferId to myRefers array
@@ -37,20 +39,18 @@ const purchaseServiceFunction = (payload) => __awaiter(void 0, void 0, void 0, f
             referrer.myRefers = [];
         }
         referrer.myRefers.push(purchasedReferId);
-        // Update isPurchased to true for the purchased user
-        purchasedUser.isPurchased = true;
-        // Save both updates
-        yield Promise.all([
-            referrer.save(),
-            purchasedUser.save()
-        ]);
-        return {
-            referrer,
-            purchasedUser
-        };
     }
-    catch (error) {
-        throw error;
+    // Update isPurchased to true for the purchased user
+    purchasedUser.isPurchased = true;
+    // Save updates - only save referrer if it exists
+    const savePromises = [purchasedUser.save()];
+    if (referrer) {
+        savePromises.push(referrer.save());
     }
+    yield Promise.all(savePromises);
+    return {
+        referrer,
+        purchasedUser
+    };
 });
 exports.purchaseServiceFunction = purchaseServiceFunction;
